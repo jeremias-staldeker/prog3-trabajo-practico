@@ -12,9 +12,11 @@ public class GrafoDirigido<T> implements Grafo<T> {
 	 * HashMap que almacena los vértices del grafo.
 	 */
 	private HashMap<Integer, ArrayList<Arco<T>>> vertices;
+	private int cantidadArcos;
 
 	public GrafoDirigido() {
 		vertices = new HashMap<Integer, ArrayList<Arco<T>>>();
+		cantidadArcos = 0;
 	}
 
 	/**
@@ -54,6 +56,7 @@ public class GrafoDirigido<T> implements Grafo<T> {
 					Arco<T> arco = iter.next();
 					if (arco.getVerticeDestino() == verticeId) {
 						iter.remove();
+						cantidadArcos--;
 					}
 				}
 			}
@@ -63,7 +66,7 @@ public class GrafoDirigido<T> implements Grafo<T> {
 	/**
 	 * Agrega un arco entre dos vértices del grafo.
 	 * 
-	 * Complejidad: O(1)
+	 * Complejidad: O(E), donde E es la cantidad de arcos.
 	 *
 	 * @param verticeId1 Identificador del vértice de origen.
 	 * @param verticeId2 Identificador del vértice de destino.
@@ -72,18 +75,21 @@ public class GrafoDirigido<T> implements Grafo<T> {
 	 */
 	@Override
 	public void agregarArco(int verticeId1, int verticeId2, T etiqueta) {
-		Arco<T> arco = new Arco<>(verticeId1, verticeId2, etiqueta);
-		ArrayList<Arco<T>> arcos = vertices.get(verticeId1);
-		if (arcos != null) {
-			arcos.add(arco);
-			vertices.put(verticeId1, arcos);
+		if (!existeArco(verticeId1, verticeId2)) {
+			Arco<T> arco = new Arco<>(verticeId1, verticeId2, etiqueta);
+			ArrayList<Arco<T>> arcos = vertices.get(verticeId1);
+			if (arcos != null) {
+				arcos.add(arco);
+				vertices.put(verticeId1, arcos);
+				cantidadArcos++;
+			}
 		}
 	}
 
 	/**
 	 * Elimina un arco entre dos vértices del grafo.
 	 * 
-	 * Complejidad: O(E), donde E es la cantidad de arcos.
+	 * Complejidad: O(E), donde E es la cantidad de arcos adyacentes al vértice de origen.
 	 *
 	 * @param verticeId1 Identificador del vértice de origen.
 	 * @param verticeId2 Identificador del vértice de destino.
@@ -98,6 +104,7 @@ public class GrafoDirigido<T> implements Grafo<T> {
 				Arco<T> arco = iter.next();
 				if (arco.getVerticeDestino() == verticeId2) {
 					iter.remove();
+					cantidadArcos--;
 					break;
 				}
 			}
@@ -121,7 +128,7 @@ public class GrafoDirigido<T> implements Grafo<T> {
 	/**
 	 * Verifica si existe un arco entre dos vértices del grafo.
 	 * 
-	 * Complejidad: O(E), donde E es la cantidad de arcos.
+	 * Complejidad: O(E), donde E es la cantidad de arcos adyacentes al vértice de origen.
 	 *
 	 * @param verticeId1 Identificador del vértice de origen.
 	 * @param verticeId2 Identificador del vértice de destino.
@@ -144,7 +151,7 @@ public class GrafoDirigido<T> implements Grafo<T> {
 	/**
 	 * Obtiene el arco entre dos vértices del grafo.
 	 * 
-	 * Complejidad: O(E), donde E es la cantidad de arcos.
+	 * Complejidad: O(E), donde E es la cantidad de arcos adyacentes al vértice de origen.
 	 *
 	 * @param verticeId1 Identificador del vértice de origen.
 	 * @param verticeId2 Identificador del vértice de destino.
@@ -181,24 +188,14 @@ public class GrafoDirigido<T> implements Grafo<T> {
 	/**
 	 * Obtiene la cantidad de arcos en el grafo.
 	 * 
-	 * Complejidad: O(V + E), donde V es la cantidad de vértices y E es la cantidad
-	 * de arcos.
+	 * Complejidad: O(1)
 	 *
 	 * @return Cantidad de arcos.
 	 * 
 	 */
 	@Override
 	public int cantidadArcos() {
-		int count = 0;
-		Iterator<Integer> verticesIterator = obtenerVertices();
-		while (verticesIterator.hasNext()) {
-			int verticeId = verticesIterator.next();
-			ArrayList<Arco<T>> arcos = vertices.get(verticeId);
-			if (arcos != null) {
-				count += arcos.size();
-			}
-		}
-		return count;
+	    return cantidadArcos;
 	}
 
 	/**
